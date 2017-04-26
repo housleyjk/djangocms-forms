@@ -82,6 +82,19 @@ or override the ``Form Template`` dropdown choices to have different template op
         ('djangocms_forms/form_template/default.html', _('Default')),
     )
 
+Likewise for email templating use::
+   DJANGOCMS_FORMS_DEFAULT_EMAIL_TEMPLATE = 'djangocms_forms/email_template/default.txt'
+
+or override the ``Email Template`` dropdown choices to have different template options::
+
+    DJANGOCMS_FORMS_EMAIL_TEMPLATES = (
+        ('djangocms_forms/email_template/default.txt', _('Default')),
+    )
+HTML alternatives for templates are discoverable from the file extension. For example, the
+default `default.txt` template will also search for `default.html` and attach the rendered
+html as an altenative.
+
+
 HTML5 required - When set to True all required fields inputs will be rendered with HTML5 ``required=required`` attribute::
 
     DJANGOCMS_FORMS_USE_HTML5_REQUIRED = False

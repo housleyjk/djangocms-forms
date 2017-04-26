@@ -73,6 +73,11 @@ class FormDefinition(CMSPlugin):
     email_subject = models.CharField(_('Email Subject'), max_length=255, blank=True)
     email_uploaded_files = models.BooleanField(
         _('Send uploaded files as email attachments'), default=True)
+    email_template = models.CharField(
+        _('Email Template'), max_length=150, blank=True,
+        choices=settings.DJANGOCMS_FORMS_EMAIL_TEMPLATES,
+        default=settings.DJANGOCMS_FORMS_DEFAULT_EMAIL_TEMPLATE,
+    )
 
     # Save to database
     save_data = models.BooleanField(

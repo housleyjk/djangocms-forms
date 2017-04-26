@@ -67,6 +67,12 @@ class DjangoCMSFormsConf(AppConf):
 
     DEFAULT_TEMPLATE = 'djangocms_forms/form_template/default.html'
 
+    EMAIL_TEMPLATES = (
+        ('djangocms_forms/email_template/default.txt', _('Default')),
+    )
+
+    DEFAULT_EMAIL_TEMPLATE = 'djangocms_forms/email_template/default.txt'
+
     DATETIME_FORMAT = '%d/%m/%Y %H:%M'
     EXPORT_FILENAME = 'export-{form_name}-%Y-%m-%d'
 

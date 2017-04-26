@@ -101,7 +101,7 @@ class FormPlugin(CMSPluginBase):
                                'Choose storage options to capture form data. You can enter '
                                'an email address to have the form submissions emailed to you or '
                                'log all the form submissions to the database.',
-                'fields': ('email_to', 'email_from', 'email_subject',
+                'fields': ('email_to', 'email_from', 'email_subject', 'email_template',
                            'email_uploaded_files', 'save_data', 'spam_protection', ),
             }),
         )

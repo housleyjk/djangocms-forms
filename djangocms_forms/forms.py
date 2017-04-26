@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 
+import os
 import re
 
 from django import forms
@@ -82,6 +83,17 @@ class FormDefinitionAdminForm(forms.ModelForm):
                 msg = _('Selected Form Template does not exist.')
                 raise forms.ValidationError(msg)
         return form_template
+
+    def clean_email_template(self):
+        """ Check if template exists """
+        email_template = self.cleaned_data.get('email_template', '')
+        if email_template:
+            try:
+                get_template(email_template)
+            except TemplateDoesNotExist:
+                msg = _('Selected Email Template does not exist.')
+                raise forms.ValidationError(msg)
+        return email_template
 
     class Meta:
         model = FormDefinition
@@ -352,11 +364,18 @@ class FormBuilder(forms.Form):
             'recipients': mail_to,
         }
 
-        message = render_to_string('djangocms_forms/email_template/email.txt', context)
-        message_html = render_to_string('djangocms_forms/email_template/email.html', context)
-
+        message = render_to_string(self.form_definition.email_template, context)
         email = EmailMultiAlternatives(mail_subject, message, mail_from, mail_to)
-        email.attach_alternative(message_html, 'text/html')
+
+        try:
+            message_html = render_to_string(
+                os.path.splitext(self.form_definition.email_template)[0] + '.html',
+                context)
+        except TemplateDoesNotExist:
+            pass
+        else:
+            email.attach_alternative(message_html, 'text/html')
+
 
         if self.form_definition.email_uploaded_files:
             for field, filedata in self.files.items():
