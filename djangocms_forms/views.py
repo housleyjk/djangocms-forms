@@ -9,12 +9,14 @@ from django.utils.http import is_safe_url
 from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
+from django.template import Template, Context
 
 from .forms import FormBuilder
 from .models import FormDefinition
 from .signals import form_submission
 from .uploads import handle_uploaded_files
 from .utils import hashid_to_int
+from .conf import settings
 
 try:
     from django.http import JsonResponse
@@ -43,15 +45,21 @@ class FormSubmission(FormView):
             form=form.form_definition,
             cleaned_data=form.cleaned_data)
 
+        if settings.DJANGOCMS_FORMS_ALLOW_EXTENDED_TEMPLATING:
+            msg_template = Template(form.form_definition.post_submit_msg)
+            msg = msg_template.render(Context(form.cleaned_data))
+        else:
+            msg = form.form_definition.post_submit_msg
+
         if self.request.is_ajax():
             response = {
                 'formIsValid': True,
                 'redirectUrl': form.redirect_url,
-                'message': form.form_definition.post_submit_msg,
+                'message': msg,
             }
             return JsonResponse(response)
         else:
-            messages.success(self.request, strip_tags(form.form_definition.post_submit_msg))
+            messages.success(self.request, strip_tags(msg))
             if form.redirect_url:
                 return redirect(form.redirect_url)
 

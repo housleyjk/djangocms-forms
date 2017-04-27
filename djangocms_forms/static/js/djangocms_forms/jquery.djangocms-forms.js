@@ -89,6 +89,9 @@
             }
         },
         formValid: function(response) {
+            if (response.message) {
+              $(this.settings.formSuccess, this.el).html('<p>' + response.message + '</p>');
+            }
             $(this.settings.formSuccess, this.el).fadeIn('slow');
             $(this.settings.formWrapper, this.el).slideUp('slow').remove();
             if (response.redirectUrl) {
