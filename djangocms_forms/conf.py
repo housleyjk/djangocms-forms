@@ -84,5 +84,7 @@ class DjangoCMSFormsConf(AppConf):
 
     ALLOW_CUSTOM_FIELD_NAME = True
 
+    ALLOW_EXTENDED_TEMPLATING = False
+
     class Meta:
         prefix = 'djangocms_forms'

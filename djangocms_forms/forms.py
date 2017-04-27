@@ -9,7 +9,7 @@ from django import forms
 from django.contrib.admin.widgets import AdminDateWidget, FilteredSelectMultiple
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from django.template import TemplateDoesNotExist
+from django.template import TemplateDoesNotExist, TemplateSyntaxError, Template, Context
 from django.template.defaultfilters import slugify
 from django.template.loader import get_template, render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -21,6 +21,7 @@ from .fields import FormBuilderFileField, HoneyPotField, MultipleChoiceAutoCompl
 from .models import Form, FormDefinition, FormField, FormSubmission
 from .utils import int_to_hashid
 from .widgets import DateInput, TelephoneInput, TimeInput
+from .conf import settings
 
 
 class FormFieldInlineForm(forms.ModelForm):
@@ -95,6 +96,31 @@ class FormDefinitionAdminForm(forms.ModelForm):
                 raise forms.ValidationError(msg)
         return email_template
 
+    def clean_post_submit_msg(self):
+        value = self.cleaned_data.get('post_submit_msg', '')
+        return self._ensure_template_syntax(value)
+
+    def clean_email_subject(self):
+        value = self.cleaned_data.get('email_subject', '')
+        return self._ensure_template_syntax(value)
+
+    def clean_email_to(self):
+        value = self.cleaned_data.get('email_to', '')
+        return self._ensure_template_syntax(value)
+
+    def _ensure_template_syntax(self, value):
+        """
+        If extended templating is on,
+        we need to check that this is a valid template.
+        """
+        if settings.DJANGOCMS_FORMS_ALLOW_EXTENDED_TEMPLATING:
+            try:
+                Template(value)
+            except TemplateSyntaxError:
+                msg = _('Invalid template format.')
+                raise forms.ValidationError(msg)
+        return value
+
     class Meta:
         model = FormDefinition
         fields = '__all__'
@@ -135,8 +161,9 @@ class FormBuilder(forms.Form):
             self.fields[field_name] = ReCaptchaField(label=_('Are you a robot?'))
 
     def get_unique_field_name(self, field):
-        field_name = field.field_name or field.label
-        field_name = '%s' % (slugify(unidecode(field_name).replace('-', '_')))
+        field_name = (
+            unidecode(field.field_name) or
+            slugify(unidecode(field.label)).replace('-', '_'))
 
         if field_name in self.field_names:
             i = 1
@@ -351,9 +378,18 @@ class FormBuilder(forms.Form):
             created_by=user)
 
     def email_submission(self, form_data, request, referrer):
-        mail_to = re.compile('\s*[,;]+\s*').split(self.form_definition.email_to)
+        if settings.DJANGOCMS_FORMS_ALLOW_EXTENDED_TEMPLATING:
+            context = Context(dict((
+                (data['name'], data['value']) for data in form_data)))
+            mail_to = Template(self.form_definition.email_to).render(context)
+            mail_subject = Template(self.form_definition.email_subject).render(context)
+        else:
+            mail_to = self.form_definition.email_to
+            mail_subject = self.form_definition.email_subject
+
+        mail_to = re.compile('\s*[,;]+\s*').split(mail_to)
         mail_from = self.form_definition.email_from or None
-        mail_subject = self.form_definition.email_subject or \
+        mail_subject = mail_subject or \
             'Form Submission - %s' % self.form_definition.name
         context = {
             'form': self.form_definition,
