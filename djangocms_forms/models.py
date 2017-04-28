@@ -201,6 +201,7 @@ class FormField(models.Model):
             'checkbox': ('booleanfield',),
             'checkbox_multiple': ('checkboxselectmultiple', ),
             'select': ('choicefield', ),
+            'select_multiple': ('choicefield', ),
             'radio': ('radioselect', ),
             'file': ('filefield', ),
             'date': ('dateinput', ),

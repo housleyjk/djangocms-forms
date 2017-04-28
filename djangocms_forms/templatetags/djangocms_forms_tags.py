@@ -92,6 +92,6 @@ def to_html(field):
         value = '<a href="{0}">{0}</a>'.format(value)
     if field_type == 'checkbox':
         value = yesno(bool(value), u'{0},{1}'.format(_('Yes'), _('No')))
-    if field_type == 'checkbox_multiple':
+    if field_type == 'checkbox_multiple' or field_type == 'select_multiple':
         value = ', '.join(list(value))
     return mark_safe(value)
