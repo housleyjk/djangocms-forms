@@ -202,7 +202,7 @@ class FormSubmissionAdmin(admin.ModelAdmin):
 
                 if field_type == 'checkbox':
                     value = yesno(bool(value), u'{0},{1}'.format(_('Yes'), _('No')))
-                if field_type == 'checkbox_multiple':
+                if field_type == 'checkbox_multiple' or field_type == 'select_multiple':
                     value = ', '.join(list(value))
                 return value
 

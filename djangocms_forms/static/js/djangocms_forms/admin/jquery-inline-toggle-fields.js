@@ -9,7 +9,7 @@ jQuery(function($) {
             var inputField = that.find(typeInput);
             var toggleField = function() {
                 var selectedFieldType = inputField.val();
-                var choiceFields = ['checkbox_multiple', 'select', 'radio', 'file'];
+                var choiceFields = ['checkbox_multiple', 'select_multiple', 'select', 'radio', 'file'];
                 var showChoiceField = $.inArray(selectedFieldType, choiceFields) >= 0;
                 that.find('.field-choice_values')
                     .toggle(showChoiceField)

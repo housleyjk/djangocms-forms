@@ -36,6 +36,7 @@ class DjangoCMSFormsConf(AppConf):
         ('checkbox', _('Checkbox')),
         ('checkbox_multiple', _('Multi Checkbox')),
         ('select', _('Drop down')),
+        ('select_multiple', _('Multi Select')),
         ('radio', _('Radio')),
         ('file', _('File Upload')),
         ('date', _('Date')),

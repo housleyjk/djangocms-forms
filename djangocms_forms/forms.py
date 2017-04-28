@@ -26,7 +26,7 @@ class FormFieldInlineForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(FormFieldInlineForm, self).clean()
 
-        requires_choice_values = ['checkbox_multiple', 'select', 'radio']
+        requires_choice_values = ['select_multiple', 'checkbox_multiple', 'select', 'radio']
         if (cleaned_data.get('field_type') in requires_choice_values and
                 not cleaned_data.get('choice_values')):
 
@@ -200,6 +200,23 @@ class FormBuilder(forms.Form):
         if field.initial:
             field_attrs.update({
                 'initial': self.split_choices(field.initial)
+            })
+        return forms.MultipleChoiceField(**field_attrs)
+
+    def prepare_select_multiple(self, field):
+        field_attrs = field.build_field_attrs()
+        widget_attrs = field.build_widget_attrs()
+
+        field_attrs.update({
+            'widget': forms.SelectMultiple(attrs=widget_attrs)
+        })
+
+        if field.choice_values:
+            choice_list = field.get_choices()
+            if not field.required:
+                choice_list.insert(0, ('', field.placeholder_text or _('Please select an option')))
+            field_attrs.update({
+                'choices': choice_list
             })
         return forms.MultipleChoiceField(**field_attrs)
 
